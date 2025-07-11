@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三方仓下单</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .main-container {
+            width: 100vw;
+            min-height: 100vh;
+            background: #f5f5f5;
+            padding: 0 0 32px 0;
+        }
+        .page-title {
+            font-size: 22px;
+            color: #222;
+            font-weight: 700;
+            margin: 0 0 18px 0;
+            padding: 32px 0 0 24px;
+            letter-spacing: 1px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(64,158,255,0.08), 0 1.5px 6px #409eff22;
+            padding: 24px 32px 18px 32px;
+            margin: 0 24px 24px 24px;
+            width: auto;
+            max-width: calc(100vw - 48px);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 18px;
+            letter-spacing: 0.5px;
+        }
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+            gap: 24px;
+        }
+        .form-label {
+            width: 120px;
+            color: #333;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .form-value, .form-input {
+            flex: 1;
+            color: #222;
+            font-size: 15px;
+        }
+        .form-input input, .form-input select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        .table-section {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(64,158,255,0.08), 0 1.5px 6px #409eff22;
+            padding: 0 0 24px 0;
+            margin: 0 24px 24px 24px;
+            width: auto;
+            max-width: calc(100vw - 48px);
+        }
+        .table-wrap {
+            overflow-x: auto;
+            margin: 0 0 0 0;
+            background: #fff;
+            border-radius: 6px;
+        }
+        table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+            background: #fff;
+        }
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        .footer-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+            background: #fff;
+            border-top: 1px solid #eee;
+            padding: 24px;
+            border-radius: 0 0 12px 12px;
+            margin: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+        .btn {
+            padding: 0 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 80px;
+            height: 36px;
+            font-weight: 400;
+            border: none;
+            outline: none;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #409EFF;
+            color: #fff;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #337ecc;
+        }
+        @media (max-width: 900px) {
+            .main-container { width: 100vw; min-width: 0; padding: 0; }
+            .card, .table-section, .footer-bar { max-width: 100vw; margin: 12px 0 0 0; border-radius: 0; padding: 12px 4px; }
+            .page-title { padding-left: 8px; padding-right: 8px; padding-top: 18px; font-size: 18px; margin-bottom: 12px; }
+            table { min-width: 600px; }
+            .section-title { font-size: 15px; margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="page-title">三方仓下单</div>
+        <div class="card">
+            <div class="section-title">收货信息</div>
+            <div class="form-row">
+                <div class="form-label">收货人</div>
+                <div class="form-input"><input type="text" placeholder="请输入收货人"></div>
+                <div class="form-label">联系电话</div>
+                <div class="form-input"><input type="text" placeholder="请输入联系电话"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-label">收货地址</div>
+                <div class="form-input"><input type="text" placeholder="请输入详细地址"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-label">备注</div>
+                <div class="form-input"><input type="text" placeholder="备注（选填）"></div>
+            </div>
+        </div>
+        <div class="table-section">
+            <div class="section-title">商品明细</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>图片</th>
+                            <th>品名/SKU</th>
+                            <th>数量</th>
+                            <th>单价</th>
+                            <th>总价</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><img src="https://via.placeholder.com/40" style="width:40px;height:40px;border-radius:4px;object-fit:cover;"></td>
+                            <td>三方仓收纳箱/SKU-3PL-01</td>
+                            <td><input type="number" value="10" min="1" style="width:60px;"></td>
+                            <td>25.00</td>
+                            <td>250.00</td>
+                            <td><input type="text" placeholder="备注" style="width:100px;"></td>
+                        </tr>
+                        <tr>
+                            <td><img src="https://via.placeholder.com/40/7f7fff" style="width:40px;height:40px;border-radius:4px;object-fit:cover;"></td>
+                            <td>三方仓广告牌/SKU-3PL-02</td>
+                            <td><input type="number" value="5" min="1" style="width:60px;"></td>
+                            <td>40.00</td>
+                            <td>200.00</td>
+                            <td><input type="text" placeholder="备注" style="width:100px;"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="footer-bar">
+            <button class="btn" onclick="window.history.back()">取消</button>
+            <button class="btn btn-primary" style="font-size:16px;padding:0 32px;">提交订单</button>
+        </div>
+    </div>
+</body>
+</html> 
