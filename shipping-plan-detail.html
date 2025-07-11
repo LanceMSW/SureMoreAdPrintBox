@@ -160,13 +160,16 @@
 </head>
 <body>
     <div class="main-container">
-        <div class="page-title"><b>计划批次号：</b>RP250708001</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="page-title"><b>计划批次号：</b>RP250708001</div>
+            <button onclick="window.history.back()" style="margin:32px 32px 0 0;padding:6px 18px;font-size:15px;border:none;border-radius:4px;background:#909399;color:#fff;cursor:pointer;">关闭</button>
+        </div>
         <div class="card">
             <div class="section-title">基本信息</div>
             <table class="info-table">
                 <tr>
                     <td class="label">目的仓类型：</td>
-                    <td class="value">FBA仓</td>
+                    <td class="value" id="dest-type">--</td>
                     <td class="label">创建人：</td>
                     <td class="value">缪沈伟</td>
                     <td class="label">创建时间：</td>
@@ -182,48 +185,67 @@
         </div>
         <div class="card">
             <div class="section-title">计划信息</div>
-            <div class="tabs">
-                <div class="tab active">发货商品</div>
-                <div class="tab">关联采购计划</div>
-                <div class="tab">关联调拨单</div>
-                <div class="tab">操作日志</div>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>图片</th>
-                            <th>计划编号</th>
-                            <th>店铺/站点</th>
-                            <th>MSKU/FNSKU</th>
-                            <th>发货仓库</th>
-                            <th>品名/SKU</th>
-                            <th>特殊属性</th>
-                            <th style="color:#f56c6c;font-weight:bold;">*公司主体</th>
-                            <th style="color:#f56c6c;font-weight:bold;">*团队</th>
-                            <th>单位</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><img src="https://img.alicdn.com/imgextra/i2/2200704182017/O1CN01Qw1k2B1v2QnQfXl2A_!!2200704182017.jpg" class="img-thumb"><span class="tag">组</span></td>
-                            <td>R250708001</td>
-                            <td>ADM TECH LLC:US</td>
-                            <td>ADM-14-30P-10FT X0045HEMFT</td>
-                            <td>安固园艺仓</td>
-                            <td><a class="blue-link" href="#">充电枪延长线：14-30P-10FT TE001185ZH</a></td>
-                            <td>普货</td>
-                            <td>苏州柯思兰科技有限公司</td>
-                            <td>Tera</td>
-                            <td>5</td>
-                        </tr>
-                        <tr class="summary-row">
-                            <td colspan="10">合计　记录数：1</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <div class="tabs" id="plan-tabs"></div>
+            <div id="tab-contents"></div>
         </div>
+        <script>
+        // 获取URL参数
+        function getQueryParam(name) {
+            const url = window.location.search;
+            const match = url.match(new RegExp('[?&]' + name + '=([^&]*)'));
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+        const type = getQueryParam('type');
+        const destType = document.getElementById('dest-type');
+        if(type === 'FBA') {
+            destType.textContent = 'FBA仓';
+        } else if(type === '3PL') {
+            destType.textContent = '三方仓';
+        } else {
+            destType.textContent = '--';
+        }
+        // tab和内容区动态插入
+        const tabList = [
+            {key: 'product', label: '商品信息'},
+            ...(type === 'FBA' ? [{key: 'fba', label: '关联FBA货件'}] : []),
+            ...(type === '3PL' ? [{key: '3pl', label: '关联三方仓入库单'}] : []),
+            {key: 'transfer', label: '关联调拨单'},
+            {key: 'log', label: '操作日志'}
+        ];
+        const tabContentsData = {
+            product: `<div class='table-wrap'><table><thead><tr><th>图片</th><th>计划编号</th><th>店铺/站点</th><th>MSKU/FNSKU</th><th>发货仓库</th><th>品名/SKU</th><th>发货数量</th><th>箱数</th><th>外箱尺寸</th><th>备注</th></tr></thead><tbody><tr><td><img src='https://via.placeholder.com/36' class='img-thumb'></td><td>RP250708001</td><td>Amazon-US</td><td>MSKU123456</td><td>上海仓</td><td>蓝牙音箱/SKU-001</td><td>100</td><td>10</td><td>40x30x30</td><td>--</td></tr></tbody></table></div>`,
+            fba: `<div class='table-wrap'><table><thead><tr><th>货件号</th><th>品名</th><th>SKU</th><th>MSKU/FNSKU</th><th>店铺站点</th><th>货件数量</th><th>创建人</th><th>创建时间</th></tr></thead><tbody><tr><td>FBA20240701001</td><td>蓝牙音箱</td><td>SKU-001</td><td>MSKU123456</td><td>Amazon-US</td><td>50</td><td>张三</td><td>2024-07-01</td></tr></tbody></table></div>`,
+            '3pl': `<div class='table-wrap'><table><thead><tr><th>三方仓入库单号</th><th>品名</th><th>SKU</th><th>三方仓品名/SKU</th><th>发货仓</th><th>收货仓</th><th>发货数量</th><th>创建人</th><th>创建时间</th></tr></thead><tbody><tr><td>3PL20240701001</td><td>广告牌</td><td>SKU-002</td><td>SKU-3PL-01</td><td>广州仓</td><td>深圳仓</td><td>80</td><td>李雷</td><td>2024-07-01</td></tr></tbody></table></div>`,
+            transfer: `<div class='table-wrap'><table><thead><tr><th>调拨单号</th><th>品名</th><th>SKU</th><th>调出仓</th><th>调入仓</th><th>调拨数量</th><th>备货区域</th><th>备货平台</th><th>运输方式</th><th>创建人</th><th>创建时间</th></tr></thead><tbody><tr><td>DB20240701001</td><td>收纳箱</td><td>SKU-003</td><td>上海仓</td><td>北京仓</td><td>60</td><td>华东</td><td>自营平台</td><td>卡车</td><td>王五</td><td>2024-07-01</td></tr></tbody></table></div>`,
+            log: `<div class='table-wrap'><table><thead><tr><th>操作时间</th><th>操作人</th><th>操作内容</th></tr></thead><tbody><tr><td>2024-07-01 10:00</td><td>系统</td><td>创建发货计划</td></tr></tbody></table></div>`
+        };
+        const tabBar = document.getElementById('plan-tabs');
+        const tabContents = document.getElementById('tab-contents');
+        tabBar.innerHTML = '';
+        tabContents.innerHTML = '';
+        tabList.forEach((tab, idx) => {
+            const tabDiv = document.createElement('div');
+            tabDiv.className = 'tab' + (idx === 0 ? ' active' : '');
+            tabDiv.setAttribute('data-tab', tab.key);
+            tabDiv.textContent = tab.label;
+            tabBar.appendChild(tabDiv);
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'tab-content';
+            contentDiv.id = 'tab-' + tab.key;
+            contentDiv.style.display = idx === 0 ? '' : 'none';
+            contentDiv.innerHTML = tabContentsData[tab.key] || '';
+            tabContents.appendChild(contentDiv);
+        });
+        // tab切换逻辑
+        Array.from(tabBar.children).forEach(tab => {
+            tab.onclick = function() {
+                Array.from(tabBar.children).forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                Array.from(tabContents.children).forEach(tc => tc.style.display = 'none');
+                document.getElementById('tab-' + tab.getAttribute('data-tab')).style.display = '';
+            };
+        });
+        </script>
     </div>
 </body>
 </html> 

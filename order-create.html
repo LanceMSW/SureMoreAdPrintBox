@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>三方仓下单</title>
+    <title>下单</title>
     <style>
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
@@ -142,54 +142,97 @@
 </head>
 <body>
     <div class="main-container">
-        <div class="page-title">三方仓下单</div>
+        <div class="page-title">下单</div>
         <div class="card">
-            <div class="section-title">收货信息</div>
+            <div class="section-title">基本信息</div>
             <div class="form-row">
-                <div class="form-label">收货人</div>
-                <div class="form-input"><input type="text" placeholder="请输入收货人"></div>
-                <div class="form-label">联系电话</div>
-                <div class="form-input"><input type="text" placeholder="请输入联系电话"></div>
+                <div class="form-label">入库仓：</div>
+                <div class="form-value">联帕-UK</div>
+                <div class="form-label">入库单号：</div>
+                <div class="form-value">3PLIB250711002</div>
+                <div class="form-label">入库类型：</div>
+                <div class="form-value">错误入库</div>
             </div>
             <div class="form-row">
-                <div class="form-label">收货地址</div>
-                <div class="form-input"><input type="text" placeholder="请输入详细地址"></div>
+                <div class="form-label">来源单号：</div>
+                <div class="form-value">OB2504110019</div>
+                <div class="form-label">备注：</div>
+                <div class="form-input"><input type="text" placeholder="请输入备注"></div>
             </div>
+        </div>
+        <div class="card">
+            <div class="section-title">物流信息</div>
             <div class="form-row">
-                <div class="form-label">备注</div>
-                <div class="form-input"><input type="text" placeholder="备注（选填）"></div>
+                <div class="form-label">发货国家：</div>
+                <div class="form-input"><input type="text" placeholder="请输入发货国家" value="英国"></div>
+                <div class="form-label">头程类型：</div>
+                <div class="form-input">
+                    <select>
+                        <option>类型1</option>
+                        <option>类型2</option>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="table-section">
-            <div class="section-title">商品明细</div>
+            <div class="section-title">产品信息</div>
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
                             <th>图片</th>
                             <th>品名/SKU</th>
-                            <th>数量</th>
-                            <th>单价</th>
-                            <th>总价</th>
-                            <th>备注</th>
+                            <th>MSKU/FNSKU</th>
+                            <th>三方仓SKU</th>
+                            <th>三方仓下单量</th>
+                            <th>单位</th>
+                            <th>单箱数量</th>
+                            <th>单箱毛重(kg)</th>
+                            <th>外箱尺寸(cm)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><img src="https://via.placeholder.com/40" style="width:40px;height:40px;border-radius:4px;object-fit:cover;"></td>
-                            <td>三方仓收纳箱/SKU-3PL-01</td>
-                            <td><input type="number" value="10" min="1" style="width:60px;"></td>
-                            <td>25.00</td>
-                            <td>250.00</td>
-                            <td><input type="text" placeholder="备注" style="width:100px;"></td>
+                            <td>Model:5100 激光无线2.4G 黑鼻 欧州<br>TE000652</td>
+                            <td>--</td>
+                            <td>D12518NYNH7</td>
+                            <td>3</td>
+                            <td>台</td>
+                            <td>1</td>
+                            <td>0.45</td>
+                            <td>43 x 43 x 43</td>
                         </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="table-section">
+            <div class="section-title">装箱信息</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
                         <tr>
-                            <td><img src="https://via.placeholder.com/40/7f7fff" style="width:40px;height:40px;border-radius:4px;object-fit:cover;"></td>
-                            <td>三方仓广告牌/SKU-3PL-02</td>
-                            <td><input type="number" value="5" min="1" style="width:60px;"></td>
-                            <td>40.00</td>
-                            <td>200.00</td>
-                            <td><input type="text" placeholder="备注" style="width:100px;"></td>
+                            <th>图片</th>
+                            <th>品名/SKU</th>
+                            <th>MSKU/FNSKU</th>
+                            <th>发货箱数</th>
+                            <th>总净重(kg)</th>
+                            <th>总体积CBM</th>
+                            <th>箱数</th>
+                            <th>已装箱商品数量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><img src="https://via.placeholder.com/40" style="width:40px;height:40px;border-radius:4px;object-fit:cover;"></td>
+                            <td>Model:5100 激光无线2.4G 黑鼻 欧州<br>TE000652</td>
+                            <td>--</td>
+                            <td>3</td>
+                            <td>1.02</td>
+                            <td>0.11</td>
+                            <td>3</td>
+                            <td>3</td>
                         </tr>
                     </tbody>
                 </table>
@@ -197,7 +240,7 @@
         </div>
         <div class="footer-bar">
             <button class="btn" onclick="window.history.back()">取消</button>
-            <button class="btn btn-primary" style="font-size:16px;padding:0 32px;">提交订单</button>
+            <button class="btn btn-primary" style="font-size:16px;padding:0 32px;">下单</button>
         </div>
     </div>
 </body>

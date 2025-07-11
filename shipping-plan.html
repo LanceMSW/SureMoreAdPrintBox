@@ -597,7 +597,7 @@
         </div>
         <div style="padding:18px 32px 0 32px;display:flex;justify-content:flex-end;gap:12px;">
           <button class="btn" id="fba-link-cancel">取消</button>
-          <button class="btn btn-primary">确定</button>
+          <button class="btn btn-primary" id="fba-link-confirm">确认</button>
         </div>
       </div>
     </div>
@@ -640,6 +640,11 @@
                 boxBtn.style.display = 'none';
             }
         }
+        // 记录当前类型
+        window.currentType = 'FBA'; // 默认FBA
+        if(localStorage.getItem('shippingPlanType')) {
+          window.currentType = localStorage.getItem('shippingPlanType');
+        }
         function selectMainTabLabel(el) {
             document.querySelectorAll('.main-tab-label').forEach(e=>e.classList.remove('active'));
             el.classList.add('active');
@@ -647,9 +652,13 @@
             if(tab==="FBA"){
                 document.getElementById('table-fba').style.display = '';
                 document.getElementById('table-3pl').style.display = 'none';
+                window.currentType = 'FBA';
+                localStorage.setItem('shippingPlanType', 'FBA');
             }else{
                 document.getElementById('table-fba').style.display = 'none';
                 document.getElementById('table-3pl').style.display = '';
+                window.currentType = '3PL';
+                localStorage.setItem('shippingPlanType', '3PL');
             }
             updateTableOpsBar();
         }
@@ -700,14 +709,16 @@
           var modal = document.getElementById('actionModal');
           modal.innerHTML = '';
           if(type === 'FBA') {
-            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'关联FBA货件\')">关联FBA货件</div>';
+            modal.innerHTML += '<div class="action-modal-option" onclick="showFbaLinkModal()">关联FBA货件</div>';
             modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'编辑\')">编辑</div>';
             modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'作废\')">作废</div>';
             modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'日志\')">日志</div>';
+            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'打印箱唛\')">打印箱唛</div>';
           } else {
             modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'编辑\')">编辑</div>';
             modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'作废\')">作废</div>';
             modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'日志\')">日志</div>';
+            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'打印箱唛\')">打印箱唛</div>';
           }
           modal.style.display = 'block';
           var rect = el.getBoundingClientRect();
@@ -755,6 +766,11 @@
           document.getElementById('fba-link-modal').style.display = 'none';
         };
         document.getElementById('fba-link-cancel').onclick = function() {
+          document.getElementById('fba-link-modal').style.display = 'none';
+        };
+        document.getElementById('fba-link-confirm').onclick = function() {
+          const checked = Array.from(document.querySelectorAll('.fba-link-checkbox:checked')).map(cb=>cb.parentElement.nextElementSibling.textContent);
+          alert('已选择FBA货件：' + checked.join(', '));
           document.getElementById('fba-link-modal').style.display = 'none';
         };
 
@@ -852,7 +868,7 @@ function renderPlans() {
     const trMain = document.createElement('tr');
     trMain.className = 'main-row';
     trMain.innerHTML = `
-      <td colspan="19" style="background:#f0f6ff;padding:8px 0 8px 0;">
+      <td colspan="18" style="background:#f0f6ff;padding:8px 0 8px 0;">
         <div style="display:grid;grid-template-columns: 36px 40px 90px 160px repeat(10,1fr);align-items:center;font-size:13px;font-weight:400;">
           <span class="expand-btn" style="grid-column:1;position:sticky;left:0;z-index:4;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;overflow:hidden;" onclick="toggleDetails(${idx})">＋</span>
           <span style="grid-column:2;position:sticky;left:36px;z-index:5;display:flex;align-items:center;justify-content:center;overflow:hidden;"><input type="checkbox" class="main-checkbox"></span>
@@ -868,6 +884,10 @@ function renderPlans() {
           <span style="grid-column:12;text-align:left;">运输方式：${plan.运输方式}</span>
           <span style="grid-column:13;text-align:left;">预计发货时间：${plan.预计发货时间}</span>
         </div>
+      </td>
+      <td style="position:sticky;right:0;background:#f0f6ff;z-index:10;overflow:hidden;">
+        <span class="action-link action-detail" onclick="goToPlanDetail('${plan.planNo}')">详情</span>
+        <span class="action-link action-more" style="color:#909399;" data-type="FBA" data-planno="${plan.planNo}">操作</span>
       </td>
     `;
     tbody.appendChild(trMain);
@@ -894,7 +914,6 @@ function renderPlans() {
         <td>${detail.创建人}</td>
         <td>${detail.创建时间}</td>
         <td>${detail.备注}</td>
-        <td style="position:sticky;right:0;background:#f9f9fb;z-index:10;overflow:hidden;">${detail.操作}</td>
       `;
       tbody.appendChild(trDetail);
     });
@@ -1015,7 +1034,7 @@ function renderPlans3PL() {
     const trMain = document.createElement('tr');
     trMain.className = 'main-row';
     trMain.innerHTML = `
-      <td colspan="17" style="background:#f0f6ff;padding:8px 0 8px 0;">
+      <td colspan="16" style="background:#f0f6ff;padding:8px 0 8px 0;">
         <div style="display:grid;grid-template-columns: 36px 40px 90px 160px repeat(10,1fr);align-items:center;font-size:13px;font-weight:400;">
           <span class="expand-btn" style="grid-column:1;position:sticky;left:0;z-index:4;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;overflow:hidden;" onclick="toggleDetails3PL(${idx})">＋</span>
           <span style="grid-column:2;position:sticky;left:36px;z-index:5;display:flex;align-items:center;justify-content:center;overflow:hidden;"><input type="checkbox" class="main-checkbox-3pl"></span>
@@ -1031,6 +1050,10 @@ function renderPlans3PL() {
           <span style="grid-column:12;text-align:left;">运输方式：${plan.运输方式}</span>
           <span style="grid-column:13;text-align:left;">预计发货时间：${plan.预计发货时间}</span>
         </div>
+      </td>
+      <td style="position:sticky;right:0;background:#f0f6ff;z-index:10;overflow:hidden;">
+        <span class="action-link action-detail" onclick="goToPlanDetail('${plan.planNo}')">详情</span>
+        <span class="action-link action-more" style="color:#909399;" data-type="3PL" data-planno="${plan.planNo}">操作</span>
       </td>
     `;
     tbody.appendChild(trMain);
@@ -1056,7 +1079,6 @@ function renderPlans3PL() {
         <td>${detail.创建人}</td>
         <td>${detail.创建时间}</td>
         <td>${detail.备注}</td>
-        <td style="position:sticky;right:0;background:#f9f9fb;z-index:10;overflow:hidden;">${detail.操作}</td>
       `;
       tbody.appendChild(trDetail);
     });
@@ -1104,6 +1126,12 @@ if (!window._actionMoreBind) {
     }
   });
   window._actionMoreBind = true;
+}
+
+// 跳转到详情页，带参数
+function goToPlanDetail(planNo) {
+  var type = window.currentType || localStorage.getItem('shippingPlanType') || 'FBA';
+  window.location.href = 'shipping-plan-detail.html?id=' + encodeURIComponent(planNo) + '&type=' + encodeURIComponent(type);
 }
     </script>
 </body>
