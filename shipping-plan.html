@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发货计划管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .search-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .form-group input, .form-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 0 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 80px;
+            height: 36px;
+            font-weight: 400;
+            border: none;
+            outline: none;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: #409EFF;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #337ecc;
+        }
+
+        .btn-success {
+            background: #67C23A;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #529b2e;
+        }
+
+        .btn-warning {
+            background: #E6A23C;
+            color: #fff;
+        }
+
+        .btn-warning:hover {
+            background: #b88230;
+        }
+
+        .btn-danger {
+            background: #F56C6C;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #c45656;
+        }
+
+        .btn-info {
+            background: #909399;
+            color: #fff;
+        }
+
+        .btn-info:hover {
+            background: #606266;
+        }
+
+        .table-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-draft {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-shipping {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .status-delivered {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .modal-footer {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #667eea;
+            transition: width 0.3s ease;
+        }
+        .status-label {
+            display:inline-block;
+            font-size:12px;
+            padding:2px 8px;
+            border-radius:10px;
+            margin-top:2px;
+            color:#fff;
+        }
+        .status-finished {background:#67C23A;}
+        .status-review {background:#E6A23C;}
+        .status-in {background:#409EFF;}
+        .action-link {
+            cursor:pointer;
+            margin-right:8px;
+            font-size:14px;
+            vertical-align:middle;
+        }
+        .action-detail {color:#409EFF;}
+        .action-more {color:#909399;}
+        .action-link:last-child {margin-right:0;}
+        .main-tab-label {
+            display:inline-block;
+            padding:2px 16px;
+            border-radius:10px;
+            font-size:14px;
+            color:#409EFF;
+            background:#ecf5ff;
+            cursor:pointer;
+            margin-right:8px;
+            transition:background 0.2s,color 0.2s;
+        }
+        .main-tab-label.active {
+            background:#409EFF;
+            color:#fff;
+        }
+        .action-modal-option {
+            padding: 10px 24px;
+            font-size: 15px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            text-align: left;
+        }
+        .action-modal-option:hover {
+            background: #f5f7fa;
+            color: #409EFF;
+        }
+        .action-modal {
+            box-sizing: border-box;
+            border: 1px solid #ebeef5;
+        }
+    </style>
+</head>
+<body>
+    <div class="status-tabs" style="display:flex;gap:16px;margin-bottom:16px;">
+        <button class="btn btn-info" onclick="selectStatusTab(this)">全部</button>
+        <button class="btn btn-info" onclick="selectStatusTab(this)">草稿</button>
+        <button class="btn btn-info" onclick="selectStatusTab(this)">审批中</button>
+        <button class="btn btn-info" onclick="selectStatusTab(this)">待处理</button>
+        <button class="btn btn-info" onclick="selectStatusTab(this)">已处理</button>
+        <button class="btn btn-info" onclick="selectStatusTab(this)">已驳回</button>
+        <button class="btn btn-info" onclick="selectStatusTab(this)">已作废</button>
+    </div>
+    <div class="search-section">
+        <div style="margin-bottom:16px;display:flex;gap:12px;align-items:center;">
+            <span class="main-tab-label active" onclick="selectMainTabLabel(this)" data-tab="FBA">FBA</span>
+            <span class="main-tab-label" onclick="selectMainTabLabel(this)" data-tab="三方仓">三方仓</span>
+        </div>
+        <form class="search-form">
+            <div class="form-group">
+                <label>计划编号</label>
+                <input type="text" placeholder="请输入计划编号">
+            </div>
+            <div class="form-group">
+                <label>客户名称</label>
+                <input type="text" placeholder="请输入客户名称">
+            </div>
+            <div class="form-group">
+                <label>计划状态</label>
+                <select>
+                    <option value="">全部状态</option>
+                    <option value="draft">草稿</option>
+                    <option value="confirmed">已确认</option>
+                    <option value="shipping">运输中</option>
+                    <option value="delivered">已送达</option>
+                    <option value="cancelled">已取消</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>发货日期</label>
+                <input type="date">
+            </div>
+            <div class="form-group">
+                <label>&nbsp;</label>
+                <button type="button" class="btn btn-primary">搜索</button>
+            </div>
+        </form>
+    </div>
+    <div class="table-ops" style="justify-content:flex-start;gap:12px;" id="table-ops-bar">
+        <button class="btn btn-success" onclick="addPlan()">新增发货计划</button>
+        <button class="btn btn-info" id="btn-3pl-box" style="display:none;" onclick="window.location.href='order-create.html'">装箱预报</button>
+        <button class="btn btn-info" onclick="alert('生成调拨单')">生成调拨单</button>
+    </div>
+    <div class="table-section" style="overflow-x:auto;">
+        <div class="table-header">
+            <h2 class="table-title">发货计划列表</h2>
+        </div>
+        <div id="table-fba">
+        <table style="min-width:1200px;table-layout:auto;">
+            <thead>
+                <tr>
+                  <th style="position:sticky;left:0;z-index:4;width:36px;background:#f8f9fa;overflow:hidden;"></th>
+                  <th style="position:sticky;left:36px;z-index:5;width:40px;background:#f8f9fa;overflow:hidden;"><input type="checkbox" onclick="toggleAllCheckboxes(this)"></th>
+                  <th style="position:sticky;left:76px;z-index:6;width:90px;background:#f8f9fa;overflow:hidden;">图片</th>
+                  <th style="position:sticky;left:166px;z-index:7;width:160px;background:#f8f9fa;overflow:hidden;">品名/SKU</th>
+                  <th>属性/特殊属性</th>
+                  <th>MSKU/FNSKU</th>
+                  <th>ASIN</th>
+                  <th>货件</th>
+                  <th>预计到货时间</th>
+                  <th>发货计划数量</th>
+                  <th>外箱尺寸</th>
+                  <th>箱数</th>
+                  <th>装箱体积（m³）</th>
+                  <th>实物重量（kg）</th>
+                  <th>创建人</th>
+                  <th>创建时间</th>
+                  <th>备注</th>
+                  <th style="position:sticky;right:0;background:#f8f9fa;z-index:10;overflow:hidden;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="plan-table-body">
+                <!-- JS渲染主行和子行 -->
+            </tbody>
+        </table>
+        </div>
+        <div id="table-3pl" style="display:none;">
+        <table style="min-width:1200px;table-layout:auto;">
+            <thead>
+                <tr>
+                    <th style="position:sticky;left:0;z-index:4;width:36px;background:#f8f9fa;overflow:hidden;"></th>
+                    <th style="position:sticky;left:36px;z-index:5;width:40px;background:#f8f9fa;overflow:hidden;"><input type="checkbox" onclick="toggleAllCheckboxes3PL(this)"></th>
+                    <th style="position:sticky;left:76px;z-index:6;width:90px;background:#f8f9fa;overflow:hidden;">图片</th>
+                    <th style="position:sticky;left:166px;z-index:7;width:160px;background:#f8f9fa;overflow:hidden;">品名/SKU</th>
+                    <th>属性/特殊属性</th>
+                    <th>三方仓品名/SKU</th>
+                    <th>三方仓入库单</th>
+                    <th>预计到货时间</th>
+                    <th>发货计划数量</th>
+                    <th>外箱尺寸</th>
+                    <th>箱数</th>
+                    <th>装箱体积（m³）</th>
+                    <th>实物重量（kg）</th>
+                    <th>创建人</th>
+                    <th>创建时间</th>
+                    <th>备注</th>
+                    <th style="position:sticky;right:0;background:#f8f9fa;z-index:10;overflow:hidden;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="plan-table-body-3pl">
+                <!-- JS渲染主行和子行 -->
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <div class="pagination" style="display:flex;justify-content:flex-end;align-items:center;padding:16px 0 0 0;gap:8px;max-width:100vw;overflow-x:auto;">
+        <span>共 120 条</span>
+        <button class="btn btn-info" style="min-width:32px;" disabled>1</button>
+        <button class="btn btn-info" style="min-width:32px;">2</button>
+        <button class="btn btn-info" style="min-width:32px;">3</button>
+        <span>...</span>
+        <button class="btn btn-info" style="min-width:32px;">6</button>
+        <button class="btn btn-info" style="min-width:32px;">下一页</button>
+    </div>
+
+    <!-- 新增/编辑计划模态框 -->
+    <div id="planModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增发货计划</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="planForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>计划编号</label>
+                        <input type="text" id="planNumber" placeholder="系统自动生成" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>客户名称</label>
+                        <select id="customer" required>
+                            <option value="">请选择客户</option>
+                            <option value="1">北京广告公司</option>
+                            <option value="2">上海印刷厂</option>
+                            <option value="3">广州包装公司</option>
+                            <option value="4">深圳设计工作室</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>发货日期</label>
+                        <input type="date" id="shippingDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>预计到达日期</label>
+                        <input type="date" id="expectedDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>运输方式</label>
+                        <select id="transportMethod" required>
+                            <option value="">请选择运输方式</option>
+                            <option value="express">快递</option>
+                            <option value="truck">货车</option>
+                            <option value="train">铁路</option>
+                            <option value="air">空运</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>计划状态</label>
+                        <select id="planStatus">
+                            <option value="draft">草稿</option>
+                            <option value="confirmed">已确认</option>
+                            <option value="shipping">运输中</option>
+                            <option value="delivered">已送达</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>收货地址</label>
+                    <textarea id="deliveryAddress" rows="3" placeholder="请输入详细收货地址" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>备注</label>
+                    <textarea id="remarks" rows="3" placeholder="请输入备注信息"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-success">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="actionModal" class="action-modal" style="display:none;position:absolute;min-width:180px;box-shadow:0 2px 12px rgba(0,0,0,0.18);background:#fff;border-radius:8px;z-index:9999;padding:8px 0;"></div>
+    <!-- 关联FBA货件弹框 -->
+    <div id="fba-link-modal" class="modal" style="display:none;position:fixed;z-index:10000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.18);">
+      <div style="background:#fff;border-radius:12px;box-shadow:0 8px 40px #0002,0 1.5px 6px #409eff22;padding:0 0 24px 0;width:1100px;max-width:98vw;max-height:90vh;overflow:hidden;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:28px 32px 0 32px;">
+          <span style="font-size:22px;font-weight:600;">关联FBA货件</span>
+          <span id="fba-link-modal-close" style="font-size:26px;cursor:pointer;color:#999;transition:color 0.2s;">&times;</span>
+        </div>
+        <div style="padding:18px 32px 0 32px;flex:1;overflow:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#fafbfc;">
+                <th style="width:40px;"><input type="checkbox" onclick="document.querySelectorAll('.fba-link-checkbox').forEach(cb=>cb.checked=this.checked)"></th>
+                <th>FBA货件号</th>
+                <th>店铺</th>
+                <th>国家</th>
+                <th>品名</th>
+                <th>SKU/MSKU</th>
+                <th>FNSKU/ASIN</th>
+                <th>申报量</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" class="fba-link-checkbox"></td>
+                <td>FBA20240701001</td>
+                <td>Amazon-US</td>
+                <td>美国</td>
+                <td>蓝牙音箱</td>
+                <td>BT-SPEAKER-01</td>
+                <td>FNSKU123/B0C1234567</td>
+                <td>50</td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="fba-link-checkbox"></td>
+                <td>FBA20240701002</td>
+                <td>Amazon-UK</td>
+                <td>英国</td>
+                <td>广告牌</td>
+                <td>AD-SIGN-02</td>
+                <td>FNSKU456/B0C7654321</td>
+                <td>30</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:18px 32px 0 32px;display:flex;justify-content:flex-end;gap:12px;">
+          <button class="btn" id="fba-link-cancel">取消</button>
+          <button class="btn btn-primary" id="fba-link-confirm">确认</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+        function addPlan() {
+            var tab = document.querySelector('.main-tab-label.active').getAttribute('data-tab');
+            var type = tab === 'FBA' ? 'FBA' : '3PL';
+            window.location.href = 'add-shipping-plan.html?type=' + type;
+        }
+
+        function closeModal() {
+            document.getElementById('planModal').style.display = 'none';
+        }
+
+        function editPlan(planNumber) {
+            document.getElementById('modalTitle').textContent = '编辑发货计划';
+            document.getElementById('planNumber').value = planNumber;
+            document.getElementById('planModal').style.display = 'block';
+        }
+
+        function viewPlan(planNumber) {
+            alert('查看计划详情: ' + planNumber);
+        }
+
+        function trackShipment(planNumber) {
+            alert('跟踪物流信息: ' + planNumber + '\n\n当前位置: 上海转运中心\n预计到达: 2024-01-22 14:30\n物流状态: 运输中');
+        }
+
+        function selectStatusTab(btn) {
+            document.querySelectorAll('.status-tabs .btn').forEach(b=>b.classList.remove('btn-primary'));
+            btn.classList.add('btn-primary');
+        }
+        function updateTableOpsBar() {
+            var tab = document.querySelector('.main-tab-label.active').getAttribute('data-tab');
+            var boxBtn = document.getElementById('btn-3pl-box');
+            if(tab === '三方仓') {
+                boxBtn.style.display = '';
+            } else {
+                boxBtn.style.display = 'none';
+            }
+        }
+        // 记录当前类型
+        window.currentType = 'FBA'; // 默认FBA
+        if(localStorage.getItem('shippingPlanType')) {
+          window.currentType = localStorage.getItem('shippingPlanType');
+        }
+        function selectMainTabLabel(el) {
+            document.querySelectorAll('.main-tab-label').forEach(e=>e.classList.remove('active'));
+            el.classList.add('active');
+            var tab = el.getAttribute('data-tab');
+            if(tab==="FBA"){
+                document.getElementById('table-fba').style.display = '';
+                document.getElementById('table-3pl').style.display = 'none';
+                window.currentType = 'FBA';
+                localStorage.setItem('shippingPlanType', 'FBA');
+            }else{
+                document.getElementById('table-fba').style.display = 'none';
+                document.getElementById('table-3pl').style.display = '';
+                window.currentType = '3PL';
+                localStorage.setItem('shippingPlanType', '3PL');
+            }
+            updateTableOpsBar();
+        }
+        function toggleDropdown(e) {
+            e.stopPropagation();
+            document.querySelectorAll('.dropdown-content').forEach(el=>el.style.display='none');
+            var content = e.target.closest('td').querySelector('.dropdown-content');
+            // 优化：确保下拉菜单不会超出底部，超出则向上展示
+            content.style.display = 'block';
+            var rect = content.getBoundingClientRect();
+            var winH = window.innerHeight;
+            var spaceBelow = winH - rect.top;
+            var spaceAbove = rect.top;
+            var menuHeight = content.offsetHeight;
+            if(spaceBelow < menuHeight && spaceAbove > menuHeight) {
+                content.style.top = 'auto';
+                content.style.bottom = '100%';
+                content.style.transform = 'translateY(-8px)';
+            } else {
+                content.style.top = '100%';
+                content.style.bottom = 'auto';
+                content.style.transform = 'none';
+            }
+        }
+        document.body.onclick = function() {
+            document.querySelectorAll('.dropdown-content').forEach(el=>el.style.display='none');
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('planModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // 表单提交
+        document.getElementById('planForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('发货计划保存成功！');
+            closeModal();
+        });
+
+        let actionModalTimer = null;
+        // 操作按钮弹框逻辑与采购订单一致
+        function showActionModal(e, el, type, planNo) {
+          clearTimeout(actionModalTimer);
+          var modal = document.getElementById('actionModal');
+          modal.innerHTML = '';
+          if(type === 'FBA') {
+            modal.innerHTML += '<div class="action-modal-option" onclick="showFbaLinkModal()">关联FBA货件</div>';
+            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'编辑\')">编辑</div>';
+            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'作废\')">作废</div>';
+            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'日志\')">日志</div>';
+            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'打印箱唛\')">打印箱唛</div>';
+          } else {
+            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'编辑\')">编辑</div>';
+            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'作废\')">作废</div>';
+            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'日志\')">日志</div>';
+            modal.innerHTML += '<div class="action-modal-option" onclick="alert(\'打印箱唛\')">打印箱唛</div>';
+          }
+          modal.style.display = 'block';
+          var rect = el.getBoundingClientRect();
+          var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+          var modalHeight = modal.offsetHeight || 200;
+          var modalWidth = modal.offsetWidth || 180;
+          var winH = window.innerHeight;
+          var winW = window.innerWidth;
+          var top = rect.bottom + scrollTop;
+          var left = rect.left + scrollLeft;
+          if (rect.bottom + modalHeight > winH) {
+            top = rect.top + scrollTop - modalHeight;
+          }
+          if (rect.left + modalWidth > winW) {
+            left = winW - modalWidth - 8;
+          }
+          modal.style.top = top + 'px';
+          modal.style.left = left + 'px';
+          modal.onmouseenter = function(){ clearTimeout(actionModalTimer); };
+          modal.onmouseleave = function(){ hideActionModal(); };
+        }
+        function hideActionModal() {
+          actionModalTimer = setTimeout(function(){
+            document.getElementById('actionModal').style.display = 'none';
+          }, 120);
+        }
+        document.body.onclick = function() {
+          document.getElementById('actionModal').style.display = 'none';
+        }
+        // 选项点击直接执行
+        Array.from(document.querySelectorAll('.action-modal-option')).forEach(function(opt){
+            opt.onclick = function(e){
+                hideActionModal();
+                // 这里可替换为实际操作，无alert
+            }
+        });
+
+        // 关联FBA货件弹框逻辑
+        function showFbaLinkModal() {
+          document.getElementById('actionModal').style.display = 'none';
+          document.getElementById('fba-link-modal').style.display = 'block';
+        }
+        document.getElementById('fba-link-modal-close').onclick = function() {
+          document.getElementById('fba-link-modal').style.display = 'none';
+        };
+        document.getElementById('fba-link-cancel').onclick = function() {
+          document.getElementById('fba-link-modal').style.display = 'none';
+        };
+        document.getElementById('fba-link-confirm').onclick = function() {
+          const checked = Array.from(document.querySelectorAll('.fba-link-checkbox:checked')).map(cb=>cb.parentElement.nextElementSibling.textContent);
+          alert('已选择FBA货件：' + checked.join(', '));
+          document.getElementById('fba-link-modal').style.display = 'none';
+        };
+
+// FBA主行+子行数据示例
+const plans = [
+  {
+    planNo: 'PP250710006',
+    主体: '苏州柯思兰科技有限公司',
+    团队: 'Cosyland',
+    发货仓: '全盛仓',
+    目的仓: '北美',
+    备货区域: '北美',
+    备货平台: 'Amazon',
+    运输方式: '空运',
+    预计发货时间: '2025-08-22',
+    details: [
+      {
+        图片: 'https://via.placeholder.com/40',
+        品名SKU: '折叠收纳筐 黑色',
+        属性: '皮革 43x33x28cm',
+        MSKUFNSKU: 'CS000099-8',
+        ASIN: 'B0C1234567',
+        货件单: 'FBA20240822001',
+        预计到货时间: '2025-08-28',
+        发货计划数量: 280,
+        外箱尺寸: '43x33x28',
+        箱数: 10,
+        装箱体积: 0.4,
+        实物重量: 20,
+        创建人: '李倩',
+        创建时间: '2025-08-01',
+        备注: '无',
+        操作: '<span class="action-link action-detail" onclick="goToPlanDetail(\'' + this.planNo + '\')">详情</span>' +
+               '<span class="action-link action-more" style="color:#909399;" data-type="FBA" data-planno="' + this.planNo + '">操作</span>'
+      },
+      {
+        图片: 'https://via.placeholder.com/40/ff7f7f',
+        品名SKU: '折叠收纳筐 白色',
+        属性: '皮革 76x38x28cm',
+        MSKUFNSKU: 'CS000099-7',
+        ASIN: 'B0C1234568',
+        货件单: 'FBA20240822002',
+        预计到货时间: '2025-08-29',
+        发货计划数量: 200,
+        外箱尺寸: '76x38x28',
+        箱数: 8,
+        装箱体积: 0.5,
+        实物重量: 18,
+        创建人: '李倩',
+        创建时间: '2025-08-01',
+        备注: '加急',
+        操作: '<span class="action-link action-detail" onclick="goToPlanDetail(\'' + this.planNo + '\')">详情</span>' +
+               '<span class="action-link action-more" style="color:#909399;" data-type="FBA" data-planno="' + this.planNo + '">操作</span>'
+      }
+    ]
+  },
+  {
+    planNo: 'PP250710007',
+    主体: '苏州柯思兰科技有限公司',
+    团队: 'Cosyland',
+    发货仓: '全盛仓',
+    目的仓: '欧洲',
+    备货区域: '欧洲',
+    备货平台: 'Amazon',
+    运输方式: '海运',
+    预计发货时间: '2025-09-01',
+    details: [
+      {
+        图片: 'https://via.placeholder.com/40/7f7fff',
+        品名SKU: '收纳箱 蓝色',
+        属性: '塑料 50x30x30cm',
+        MSKUFNSKU: 'CS000100-1',
+        ASIN: 'B0C1234599',
+        货件单: 'FBA20240901001',
+        预计到货时间: '2025-09-10',
+        发货计划数量: 150,
+        外箱尺寸: '50x30x30',
+        箱数: 12,
+        装箱体积: 0.6,
+        实物重量: 22,
+        创建人: '王伟',
+        创建时间: '2025-08-10',
+        备注: '',
+        操作: '<span class="action-link action-detail" onclick="goToPlanDetail(\'' + this.planNo + '\')">详情</span>' +
+               '<span class="action-link action-more" style="color:#909399;" data-type="FBA" data-planno="' + this.planNo + '">操作</span>'
+      }
+    ]
+  }
+];
+function renderPlans() {
+  const tbody = document.getElementById('plan-table-body');
+  tbody.innerHTML = '';
+  plans.forEach((plan, idx) => {
+    // 主行
+    const trMain = document.createElement('tr');
+    trMain.className = 'main-row';
+    trMain.innerHTML = `
+      <td colspan="18" style="background:#f0f6ff;padding:8px 0 8px 0;">
+        <div style="display:grid;grid-template-columns: 36px 40px 90px 160px repeat(10,1fr);align-items:center;font-size:13px;font-weight:400;">
+          <span class="expand-btn" style="grid-column:1;position:sticky;left:0;z-index:4;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;overflow:hidden;" onclick="toggleDetails(${idx})">＋</span>
+          <span style="grid-column:2;position:sticky;left:36px;z-index:5;display:flex;align-items:center;justify-content:center;overflow:hidden;"><input type="checkbox" class="main-checkbox"></span>
+          <span style="grid-column:3;position:sticky;left:76px;z-index:6;overflow:hidden;"></span>
+          <span style="grid-column:4;position:sticky;left:166px;z-index:7;overflow:hidden;"></span>
+          <span style="grid-column:5;text-align:left;">计划单号：${plan.planNo}</span>
+          <span style="grid-column:6;text-align:left;">主体：${plan.主体}</span>
+          <span style="grid-column:7;text-align:left;">团队：${plan.团队}</span>
+          <span style="grid-column:8;text-align:left;">发货仓：${plan.发货仓}</span>
+          <span style="grid-column:9;text-align:left;">目的仓：${plan.目的仓}</span>
+          <span style="grid-column:10;text-align:left;">备货区域：${plan.备货区域}</span>
+          <span style="grid-column:11;text-align:left;">备货平台：${plan.备货平台}</span>
+          <span style="grid-column:12;text-align:left;">运输方式：${plan.运输方式}</span>
+          <span style="grid-column:13;text-align:left;">预计发货时间：${plan.预计发货时间}</span>
+        </div>
+      </td>
+      <td style="position:sticky;right:0;background:#f0f6ff;z-index:10;overflow:hidden;">
+        <span class="action-link action-detail" onclick="goToPlanDetail('${plan.planNo}')">详情</span>
+        <span class="action-link action-more" style="color:#909399;" data-type="FBA" data-planno="${plan.planNo}">操作</span>
+      </td>
+    `;
+    tbody.appendChild(trMain);
+    // 子行
+    plan.details.forEach(detail => {
+      const trDetail = document.createElement('tr');
+      trDetail.className = 'detail-row';
+      trDetail.style.display = 'none';
+      trDetail.innerHTML = `
+        <td style="position:sticky;left:0;z-index:4;width:36px;background:#f9f9fb;overflow:hidden;"></td>
+        <td style="position:sticky;left:36px;z-index:5;width:40px;background:#f9f9fb;overflow:hidden;"><input type="checkbox" class="row-checkbox"></td>
+        <td style="position:sticky;left:76px;z-index:6;width:90px;background:#f9f9fb;overflow:hidden;"><img src="${detail.图片}" style="width:40px;height:40px;border-radius:4px;object-fit:cover;"></td>
+        <td style="position:sticky;left:166px;z-index:7;width:160px;background:#f9f9fb;overflow:hidden;">${detail.品名SKU}</td>
+        <td>${detail.属性}</td>
+        <td>${detail.MSKUFNSKU}</td>
+        <td>${detail.ASIN}</td>
+        <td>${detail.货件单}</td>
+        <td>${detail.预计到货时间}</td>
+        <td>${detail.发货计划数量}</td>
+        <td>${detail.外箱尺寸}</td>
+        <td>${detail.箱数}</td>
+        <td>${detail.装箱体积}</td>
+        <td>${detail.实物重量}</td>
+        <td>${detail.创建人}</td>
+        <td>${detail.创建时间}</td>
+        <td>${detail.备注}</td>
+      `;
+      tbody.appendChild(trDetail);
+    });
+  });
+}
+
+function toggleDetails(idx) {
+  // 展开/收起本主行下所有子行
+  let tr = document.querySelectorAll('.main-row')[idx];
+  let next = tr.nextElementSibling;
+  let btn = tr.querySelector('.expand-btn');
+  let show = true;
+  while(next && next.classList.contains('detail-row')) {
+    if(next.style.display === 'none') {
+      next.style.display = '';
+      show = false;
+    } else {
+      next.style.display = 'none';
+    }
+    next = next.nextElementSibling;
+  }
+  btn.textContent = show ? '－' : '＋';
+}
+
+function toggleAllCheckboxes(checkbox) {
+  const checked = checkbox.checked;
+  document.querySelectorAll('.main-checkbox, .row-checkbox').forEach(cb => cb.checked = checked);
+}
+
+// 三方仓数据结构和渲染
+const plans3PL = [
+  {
+    planNo: '3PL20240701001',
+    主体: '广州三方公司',
+    团队: '三方团队A',
+    发货仓: '广州三方仓',
+    目的仓: '深圳仓',
+    备货区域: '华南',
+    备货平台: '三方平台',
+    运输方式: '卡车',
+    预计发货时间: '2025-08-22',
+    details: [
+      {
+        图片: 'https://via.placeholder.com/40',
+        品名SKU: '三方仓蓝牙音箱',
+        属性: '无',
+        三方仓品名SKU: 'SKU-3PL-01',
+        三方仓入库单: '3PL20240822001',
+        预计到货时间: '2025-08-28',
+        发货计划数量: 80,
+        外箱尺寸: '43x33x28',
+        箱数: 8,
+        装箱体积: 0.4,
+        实物重量: 20,
+        创建人: '李雷',
+        创建时间: '2025-08-01',
+        备注: '',
+        操作: '<span class="action-link action-detail" onclick="goToPlanDetail(\'' + this.planNo + '\')">详情</span>' +
+               '<span class="action-link action-more" style="color:#909399;" data-type="3PL" data-planno="' + this.planNo + '">操作</span>'
+      },
+      {
+        图片: 'https://via.placeholder.com/40/ff7f7f',
+        品名SKU: '三方仓广告牌',
+        属性: '易碎',
+        三方仓品名SKU: 'SKU-3PL-02',
+        三方仓入库单: '3PL20240822002',
+        预计到货时间: '2025-08-29',
+        发货计划数量: 120,
+        外箱尺寸: '60x40x30',
+        箱数: 10,
+        装箱体积: 0.7,
+        实物重量: 25,
+        创建人: '王芳',
+        创建时间: '2025-08-02',
+        备注: '需加固',
+        操作: '<span class="action-link action-detail" onclick="goToPlanDetail(\'' + this.planNo + '\')">详情</span>' +
+               '<span class="action-link action-more" style="color:#909399;" data-type="3PL" data-planno="' + this.planNo + '">操作</span>'
+      }
+    ]
+  },
+  {
+    planNo: '3PL20240701002',
+    主体: '北京三方公司',
+    团队: '三方团队B',
+    发货仓: '北京三方仓',
+    目的仓: '北京仓',
+    备货区域: '华北',
+    备货平台: '三方平台',
+    运输方式: '快递',
+    预计发货时间: '2025-09-01',
+    details: [
+      {
+        图片: 'https://via.placeholder.com/40/7f7fff',
+        品名SKU: '三方仓收纳箱',
+        属性: '塑料',
+        三方仓品名SKU: 'SKU-3PL-03',
+        三方仓入库单: '3PL20240901001',
+        预计到货时间: '2025-09-10',
+        发货计划数量: 60,
+        外箱尺寸: '50x30x30',
+        箱数: 6,
+        装箱体积: 0.3,
+        实物重量: 12,
+        创建人: '赵强',
+        创建时间: '2025-08-10',
+        备注: '',
+        操作: '<span class="action-link action-detail" onclick="goToPlanDetail(\'' + this.planNo + '\')">详情</span>' +
+               '<span class="action-link action-more" style="color:#909399;" data-type="3PL" data-planno="' + this.planNo + '">操作</span>'
+      }
+    ]
+  }
+];
+function renderPlans3PL() {
+  const tbody = document.getElementById('plan-table-body-3pl');
+  tbody.innerHTML = '';
+  plans3PL.forEach((plan, idx) => {
+    // 主行
+    const trMain = document.createElement('tr');
+    trMain.className = 'main-row';
+    trMain.innerHTML = `
+      <td colspan="16" style="background:#f0f6ff;padding:8px 0 8px 0;">
+        <div style="display:grid;grid-template-columns: 36px 40px 90px 160px repeat(10,1fr);align-items:center;font-size:13px;font-weight:400;">
+          <span class="expand-btn" style="grid-column:1;position:sticky;left:0;z-index:4;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;overflow:hidden;" onclick="toggleDetails3PL(${idx})">＋</span>
+          <span style="grid-column:2;position:sticky;left:36px;z-index:5;display:flex;align-items:center;justify-content:center;overflow:hidden;"><input type="checkbox" class="main-checkbox-3pl"></span>
+          <span style="grid-column:3;position:sticky;left:76px;z-index:6;overflow:hidden;"></span>
+          <span style="grid-column:4;position:sticky;left:166px;z-index:7;overflow:hidden;"></span>
+          <span style="grid-column:5;text-align:left;">计划单号：${plan.planNo}</span>
+          <span style="grid-column:6;text-align:left;">主体：${plan.主体}</span>
+          <span style="grid-column:7;text-align:left;">团队：${plan.团队}</span>
+          <span style="grid-column:8;text-align:left;">发货仓：${plan.发货仓}</span>
+          <span style="grid-column:9;text-align:left;">目的仓：${plan.目的仓}</span>
+          <span style="grid-column:10;text-align:left;">备货区域：${plan.备货区域}</span>
+          <span style="grid-column:11;text-align:left;">备货平台：${plan.备货平台}</span>
+          <span style="grid-column:12;text-align:left;">运输方式：${plan.运输方式}</span>
+          <span style="grid-column:13;text-align:left;">预计发货时间：${plan.预计发货时间}</span>
+        </div>
+      </td>
+      <td style="position:sticky;right:0;background:#f0f6ff;z-index:10;overflow:hidden;">
+        <span class="action-link action-detail" onclick="goToPlanDetail('${plan.planNo}')">详情</span>
+        <span class="action-link action-more" style="color:#909399;" data-type="3PL" data-planno="${plan.planNo}">操作</span>
+      </td>
+    `;
+    tbody.appendChild(trMain);
+    // 子行
+    plan.details.forEach(detail => {
+      const trDetail = document.createElement('tr');
+      trDetail.className = 'detail-row';
+      trDetail.style.display = 'none';
+      trDetail.innerHTML = `
+        <td style="position:sticky;left:0;z-index:4;width:36px;background:#f9f9fb;overflow:hidden;"></td>
+        <td style="position:sticky;left:36px;z-index:5;width:40px;background:#f9f9fb;overflow:hidden;"><input type="checkbox" class="row-checkbox-3pl"></td>
+        <td style="position:sticky;left:76px;z-index:6;width:90px;background:#f9f9fb;overflow:hidden;"><img src="${detail.图片}" style="width:40px;height:40px;border-radius:4px;object-fit:cover;"></td>
+        <td style="position:sticky;left:166px;z-index:7;width:160px;background:#f9f9fb;overflow:hidden;">${detail.品名SKU}</td>
+        <td>${detail.属性}</td>
+        <td>${detail.三方仓品名SKU}</td>
+        <td>${detail.三方仓入库单}</td>
+        <td>${detail.预计到货时间}</td>
+        <td>${detail.发货计划数量}</td>
+        <td>${detail.外箱尺寸}</td>
+        <td>${detail.箱数}</td>
+        <td>${detail.装箱体积}</td>
+        <td>${detail.实物重量}</td>
+        <td>${detail.创建人}</td>
+        <td>${detail.创建时间}</td>
+        <td>${detail.备注}</td>
+      `;
+      tbody.appendChild(trDetail);
+    });
+  });
+}
+function toggleDetails3PL(idx) {
+  let tr = document.querySelectorAll('#plan-table-body-3pl .main-row')[idx];
+  let next = tr.nextElementSibling;
+  let btn = tr.querySelector('.expand-btn');
+  let show = true;
+  while(next && next.classList.contains('detail-row')) {
+    if(next.style.display === 'none') {
+      next.style.display = '';
+      show = false;
+    } else {
+      next.style.display = 'none';
+    }
+    next = next.nextElementSibling;
+  }
+  btn.textContent = show ? '－' : '＋';
+}
+function toggleAllCheckboxes3PL(checkbox) {
+  const checked = checkbox.checked;
+  document.querySelectorAll('.main-checkbox-3pl, .row-checkbox-3pl').forEach(cb => cb.checked = checked);
+}
+// 页面加载后渲染三方仓主子表
+window.addEventListener('DOMContentLoaded', function() {
+  renderPlans();
+  renderPlans3PL();
+  updateTableOpsBar(); // 确保在DOMContentLoaded时也调用一次
+});
+
+// 事件委托绑定操作弹框
+if (!window._actionMoreBind) {
+  document.addEventListener('mouseover', function(e) {
+    if (e.target.classList.contains('action-more')) {
+      const type = e.target.getAttribute('data-type');
+      const planNo = e.target.getAttribute('data-planno');
+      showActionModal(e, e.target, type, planNo);
+    }
+  });
+  document.addEventListener('mouseout', function(e) {
+    if (e.target.classList.contains('action-more')) {
+      hideActionModal();
+    }
+  });
+  window._actionMoreBind = true;
+}
+
+// 跳转到详情页，带参数
+function goToPlanDetail(planNo) {
+  var type = window.currentType || localStorage.getItem('shippingPlanType') || 'FBA';
+  window.location.href = 'shipping-plan-detail.html?id=' + encodeURIComponent(planNo) + '&type=' + encodeURIComponent(type);
+}
+    </script>
+</body>
+</html> 
